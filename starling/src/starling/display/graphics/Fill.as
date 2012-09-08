@@ -69,13 +69,13 @@ package starling.display.graphics
 			
 			var textures:Vector.<Texture> = _material.textures;
 			if ( textures.length > 0 )
-			{
-				textureCoordinate.x /= textures[0].width;
-				textureCoordinate.y /= textures[0].height;
-				
+			{				
 				var invert:Matrix = _uvMatrix.clone();
 				invert.invert();
 				textureCoordinate = invert.transformPoint(textureCoordinate);
+				
+				textureCoordinate.x /= textures[0].width;
+				textureCoordinate.y /= textures[0].height;				
 			}
 			
 			var r:Number = (color >> 16) / 255;

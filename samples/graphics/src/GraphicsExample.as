@@ -44,7 +44,7 @@ package
 			var strokeColor:int = 0xc07732;
 			var strokeAlpha:Number = 1;
 			var strokeThickness:int = 3;
-			
+			/*
 			// Rect drawn with drawRect()
 			var shape:Shape = new Shape();
 			addChild(shape);
@@ -116,29 +116,32 @@ package
 			var sprite:Sprite = new Sprite();
 			addChild(sprite);
 			
+			var m:Matrix = new Matrix();
+			m.translate(0, 0);
+			
 			sprite.x = 100;
 			sprite.y = 400;
 			
-			sprite.graphics.beginBitmapFill(new CheckerBMP());
+			sprite.graphics.beginBitmapFill(new MarbleBMP(), m);
 			sprite.graphics.lineStyle(2, 0xFF0000, 0.5);
 			sprite.graphics.moveTo(left, top);
 			sprite.graphics.lineTo(right, bottom);
 			sprite.graphics.lineTo(left, bottom);
 			sprite.graphics.lineTo(left, top);
 			sprite.graphics.endFill();
-			
+			*/
 			// Marble
-			sprite = new Sprite();
+			var sprite:Sprite = new Sprite();
 			addChild(sprite);
 			
 			sprite.x = 350;
 			sprite.y = 450;
 			
 			var m:Matrix = new Matrix();
-			m.translate(-40, -40);
+			m.translate(-25, -25);
 			sprite.graphics.beginBitmapFill(new MarbleBMP(), m, false);
-			sprite.graphics.lineStyle(5, 0x00FF00, strokeAlpha);
-			sprite.graphics.drawCircle(0, 0, 50);
+			sprite.graphics.lineStyle(2, 0xFF0000, strokeAlpha);
+			sprite.graphics.drawCircle(0, 0, 25);
 			sprite.graphics.endFill();		
 		}
 	}
