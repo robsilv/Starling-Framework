@@ -12,7 +12,6 @@ package
 	{
 		[Embed( source = "/assets/Checker.png" )]
 		private var CheckerBMP		:Class;
-		//private var checkerTexture	:Texture;
 		private var shape			:Shape;
 		
 		private var checkerBMP		:Bitmap;
@@ -26,8 +25,6 @@ package
 		{
 			shape = new Shape(true);
 			addChild(shape);
-			
-			//checkerTexture = Texture.fromBitmap( new CheckerBMP(), false );
 			
 			checkerBMP = new CheckerBMP();
 			
