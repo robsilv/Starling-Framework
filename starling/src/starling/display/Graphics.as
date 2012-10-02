@@ -19,9 +19,11 @@ package starling.display
 		private var _strokeColor		:uint;
 		private var _strokeAlpha		:Number;
 		
-		private var _currentStroke				:Stroke;
-		private var _currentFill				:Fill;
-		private var _currentFillIsBitmapFill	:Boolean;
+		private var _currentStroke					:Stroke;
+		private var _currentFill					:Fill;
+		private var _currentFillIsBitmapFill		:Boolean;
+		private var _currentStrokeIsBitmapStroke	:Boolean;
+		private var _currentStrokeTexture			:Texture;
 		
 		private var _container			:DisplayObjectContainer;
 		
@@ -43,6 +45,16 @@ package starling.display
 			}
 		}
 		
+		public function beginFill(color:uint, alpha:Number = 1.0):void
+		{
+			_currentFillColor = color;
+			_currentFillAlpha = alpha;
+			_currentFillIsBitmapFill = false;
+			
+			_currentFill = new Fill(showProfiling);
+			_container.addChild(_currentFill);
+		}
+
 		public function beginBitmapFill(bitmap:Bitmap, matrix:Matrix = null, repeat:Boolean = true):void//, smooth:Boolean = false ) 
 		{
 			_currentFillColor = NaN;
@@ -58,17 +70,27 @@ package starling.display
 			}
 			
 			_container.addChild(_currentFill);
-		}
+		}		
 		
-		public function beginFill(color:uint, alpha:Number = 1.0):void
+		public function beginTextureFill( texture:Texture, matrix:Matrix = null ):Fill
 		{
-			_currentFillColor = color;
-			_currentFillAlpha = alpha;
-			_currentFillIsBitmapFill = false;
+			_currentFillColor = NaN;
+			_currentFillAlpha = NaN;
+			_currentFillIsBitmapFill = true;
 			
 			_currentFill = new Fill(showProfiling);
+			_currentFill.material.fragmentShader = new TextureVertexColorFragmentShader();
+			_currentFill.material.textures[0] = texture;
+			
+			if ( matrix ) {
+				_currentFill.uvMatrix = matrix;
+			}
+			
 			_container.addChild(_currentFill);
+			
+			return _currentFill;
 		}
+		
 		public function endFill():void
 		{
 			if ( _currentFill && _currentFill.numVertices < 3 ) {
@@ -120,18 +142,35 @@ package starling.display
 		
 		public function lineStyle(thickness:Number = NaN, color:uint = 0, alpha:Number = 1.0):void//, pixelHinting:Boolean = false, scaleMode:String = "normal", caps:String = null, joints:String = null, miterLimit:Number = 3):void
 		{
-			_strokeThickness	= thickness;
-			_strokeColor		= color;
-			_strokeAlpha		= alpha;
+			_strokeThickness		= thickness;
+			_strokeColor			= color;
+			_strokeAlpha			= alpha;
+			_currentStrokeTexture 	= null;
+		}
+		
+		public function lineTexture(thickness:Number = NaN, texture:Texture = null):void//, pixelHinting:Boolean = false, scaleMode:String = "normal", caps:String = null, joints:String = null, miterLimit:Number = 3):void
+		{
+			_strokeThickness		= thickness;
+			_strokeColor			= NaN;
+			_strokeAlpha			= NaN;
+			_currentStrokeTexture 	= texture;
 		}
 		
 		public function lineTo(x:Number, y:Number):void
 		{
 			if (!_currentStroke) {
-				newStroke();
+				if (_currentStrokeTexture) {
+					beginTextureStroke();
+				} else {
+					beginStroke();
+				}
 			}
 			
-			_currentStroke.addVertex( x, y, _strokeThickness, _strokeColor, _strokeAlpha, _strokeColor );
+			if (_currentStrokeIsBitmapStroke) {
+				_currentStroke.addVertex( x, y, _strokeThickness);
+			} else {
+				_currentStroke.addVertex( x, y, _strokeThickness, _strokeColor, _strokeAlpha, _strokeColor );
+			}
 			
 			if (_currentFill) {
 				if (_currentFillIsBitmapFill) {
@@ -144,9 +183,17 @@ package starling.display
 		
 		public function moveTo(x:Number, y:Number):void
 		{
-			newStroke();
+			if (_currentStrokeTexture) {
+				beginTextureStroke();
+			} else {
+				beginStroke();
+			}
 			
-			_currentStroke.addVertex( x, y, _strokeThickness, _strokeColor, _strokeAlpha, _strokeColor );
+			if (_currentStrokeIsBitmapStroke) {
+				_currentStroke.addVertex( x, y, _strokeThickness);
+			} else {
+				_currentStroke.addVertex( x, y, _strokeThickness, _strokeColor, _strokeAlpha, _strokeColor );
+			}
 			
 			if (_currentFill) {
 				if (_currentFillIsBitmapFill) {
@@ -157,13 +204,32 @@ package starling.display
 			}
 		}
 		
-		private function newStroke():void
+		private function beginStroke():void
 		{
+			_currentStrokeIsBitmapStroke = false;
+			
 			if ( _currentStroke && _currentStroke.numVertices < 2 ) {
 				_container.removeChild(_currentStroke);
 			}
+			
 			_currentStroke = new Stroke();
 			_container.addChild(_currentStroke);
+		}
+		
+		private function beginTextureStroke():Stroke
+		{
+			_currentStrokeIsBitmapStroke = true;
+			
+			if ( _currentStroke && _currentStroke.numVertices < 2 ) {
+				_container.removeChild(_currentStroke);
+			}
+			
+			_currentStroke = new Stroke();
+			_currentStroke.material.fragmentShader = new TextureVertexColorFragmentShader();
+			_currentStroke.material.textures[0] = _currentStrokeTexture;
+			_container.addChild(_currentStroke);
+			
+			return _currentStroke;
 		}
 	}
 }

@@ -19,7 +19,6 @@ package
 		private var currentPoint	:Point;
 		private var prevPoint		:Point;
 		private var distance		:Number;
-		//private var checkerTexture	:Texture;
 		private var fill			:Fill;
 		
 		public function FillExample()
@@ -29,8 +28,6 @@ package
 		
 		private function onAdded ( e:Event ):void
 		{
-			//checkerTexture = Texture.fromBitmap( new CheckerBMP(), false );
-			
 			fill = new Fill();
 			fill.material = new StandardMaterial( new StandardVertexShader(), new TextureVertexColorFragmentShader() );
 			fill.material.textures[0] = Texture.fromBitmap( new CheckerBMP(), false );
